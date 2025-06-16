@@ -40,9 +40,9 @@ task.spawn(function()
     for i = 1, 100 do
         bar.Size = UDim2.new(i/100, 0, 1, 0)
         loadingText.Text = "Loading... "..i.."%"
-        task.wait(0.93) -- Adjust speed as needed
+        task.wait(1.93) -- Adjust speed as needed
     end
-    task.wait(0.5)
+    task.wait(5.5)
     gui:Destroy() -- Remove loading screen when done
 end)
 
