@@ -1,0 +1,110 @@
+-- =============================================
+-- Simultaneous Loading GUI + Main Script
+-- Loading screen appears while main script runs
+-- =============================================
+
+local player = game:GetService("Players").LocalPlayer
+local tweenService = game:GetService("TweenService")
+
+-- Create the loading screen GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "SimultaneousLoadingScreen"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+
+-- Background
+local background = Instance.new("Frame")
+background.Size = UDim2.new(1, 0, 1, 0)
+background.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+background.Parent = gui
+
+-- Main container
+local container = Instance.new("Frame")
+container.Size = UDim2.new(0.7, 0, 0.3, 0)
+container.Position = UDim2.new(0.15, 0, 0.35, 0)
+container.BackgroundColor3 = Color3.fromRGB(20, 25, 40)
+container.Parent = background
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0.05, 0)
+corner.Parent = container
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0.3, 0)
+title.Position = UDim2.new(0, 0, 0.1, 0)
+title.Text = "LOADING SYSTEM"
+title.TextColor3 = Color3.fromRGB(200, 220, 255)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.BackgroundTransparency = 1
+title.Parent = container
+
+-- Loading bar background
+local barBackground = Instance.new("Frame")
+barBackground.Size = UDim2.new(0.9, 0, 0.15, 0)
+barBackground.Position = UDim2.new(0.05, 0, 0.6, 0)
+barBackground.BackgroundColor3 = Color3.fromRGB(30, 35, 50)
+barBackground.Parent = container
+
+local barCorner = Instance.new("UICorner")
+barCorner.CornerRadius = UDim.new(0.5, 0)
+barCorner.Parent = barBackground
+
+-- Loading bar
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0, 0, 1, 0)
+bar.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
+bar.Parent = barBackground
+
+local barCorner2 = Instance.new("UICorner")
+barCorner2.CornerRadius = UDim.new(0.5, 0)
+barCorner2.Parent = bar
+
+-- Percentage text
+local percentText = Instance.new("TextLabel")
+percentText.Size = UDim2.new(1, 0, 0.2, 0)
+percentText.Position = UDim2.new(0, 0, 0.4, 0)
+percentText.Text = "0%"
+percentText.TextColor3 = Color3.fromRGB(180, 200, 255)
+percentText.Font = Enum.Font.GothamMedium
+percentText.BackgroundTransparency = 1
+percentText.Parent = container
+
+-- Parent the GUI
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Function to update loading progress
+local function updateProgress(percent)
+    bar.Size = UDim2.new(percent/100, 0, 1, 0)
+    percentText.Text = math.floor(percent) .. "%"
+end
+
+-- Function to run both scripts simultaneously
+local function runSimultaneously()
+    -- Start your main script in a separate coroutine
+    coroutine.wrap(function()
+        -- =============================================
+        -- YOUR MAIN SCRIPT STARTS HERE
+        -- Put your existing script contents here
+        -- Example:
+        print("Main script is running...")
+        -- Your actual code goes here
+        -- =============================================
+    end)()
+
+    -- Loading animation (runs simultaneously)
+    for i = 1, 100 do
+        updateProgress(i)
+        task.wait(1.00) -- Adjust speed as needed
+    end
+    
+    -- Fade out and remove loading screen
+    local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad)
+    tweenService:Create(background, fadeInfo, {BackgroundTransparency = 1}):Play()
+    task.wait(0.5)
+    gui:Destroy()
+end
+
+-- Start both scripts
+runSimultaneously()
