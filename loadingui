@@ -1,86 +1,153 @@
--- ===== LOADING SCREEN SETUP =====
+-- ===== SIMPLE DUPLICATE GUI =====
 local player = game:GetService("Players").LocalPlayer
 local TweenService = game:GetService("TweenService")
 
--- Create the GUI
-local gui = Instance.new("ScreenGui")
-gui.Name = "PetDupeLoadingScreen"
-gui.ResetOnSpawn = false
-gui.IgnoreGuiInset = true
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+-- Create main duplicate GUI
+local dupeGui = Instance.new("ScreenGui")
+dupeGui.Name = "PetDuplicator"
+dupeGui.ResetOnSpawn = false
 
--- Main transparent background
-local background = Instance.new("Frame")
-background.Size = UDim2.new(1, 0, 1, 0)
-background.BackgroundColor3 = Color3.new(0, 0, 0)
-background.BackgroundTransparency = 0.5
-background.Parent = gui
-
--- Loading container
-local container = Instance.new("Frame")
-container.Size = UDim2.new(0.3, 0, 0.3, 0)
-container.Position = UDim2.new(0.35, 0, 0.35, 0)
-container.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-container.BackgroundTransparency = 0.3
-container.Parent = background
+-- Main frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0.25, 0, 0.3, 0)
+mainFrame.Position = UDim2.new(0.75, 0, 0.35, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+mainFrame.Parent = dupeGui
 
 -- Add rounded corners
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0.1, 0)
-corner.Parent = container
+corner.CornerRadius = UDim.new(0.05, 0)
+corner.Parent = mainFrame
 
--- Circular loading animation
-local loadingCircle = Instance.new("ImageLabel")
-loadingCircle.Size = UDim2.new(0.4, 0, 0.4, 0)
-loadingCircle.Position = UDim2.new(0.3, 0, 0.1, 0)
-loadingCircle.Image = "rbxassetid://9125473262" -- Circular loading image
-loadingCircle.BackgroundTransparency = 1
-loadingCircle.Parent = container
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(0.8, 0, 0.2, 0)
+title.Position = UDim2.new(0.1, 0, 0.05, 0)
+title.Text = "PET DUPLICATOR"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.BackgroundTransparency = 1
+title.Parent = mainFrame
 
--- Rotate the loading circle continuously
-task.spawn(function()
-    while gui.Parent do
-        loadingCircle.Rotation = 0
-        TweenService:Create(loadingCircle, TweenInfo.new(1, Enum.EasingStyle.Linear), {Rotation = 360}):Play()
-        task.wait(1)
-    end
-end)
+-- Duplicate button
+local duplicateBtn = Instance.new("TextButton")
+duplicateBtn.Size = UDim2.new(0.8, 0, 0.3, 0)
+duplicateBtn.Position = UDim2.new(0.1, 0, 0.4, 0)
+duplicateBtn.Text = "DUPLICATE PET"
+duplicateBtn.TextColor3 = Color3.new(1, 1, 1)
+duplicateBtn.Font = Enum.Font.Gotham
+duplicateBtn.TextSize = 14
+duplicateBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+duplicateBtn.Parent = mainFrame
 
--- Information text
+-- Button corner
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0.1, 0)
+btnCorner.Parent = duplicateBtn
+
+-- Info text
 local infoText = Instance.new("TextLabel")
-infoText.Size = UDim2.new(0.9, 0, 0.4, 0)
-infoText.Position = UDim2.new(0.05, 0, 0.55, 0)
-infoText.Text = "Please wait while finding a low-population server...\n\nNote: Duplication only works on high-tier pets like:\nDragonfly, Raccoon, Queen Bee, Red Fox, etc."
+infoText.Size = UDim2.new(0.9, 0, 0.3, 0)
+infoText.Position = UDim2.new(0.05, 0, 0.75, 0)
+infoText.Text = "Works on: Dragonfly, Raccoon, Queen Bee, etc."
 infoText.TextColor3 = Color3.new(1, 1, 1)
 infoText.TextWrapped = true
 infoText.Font = Enum.Font.Gotham
-infoText.TextSize = 14
+infoText.TextSize = 12
 infoText.BackgroundTransparency = 1
-infoText.Parent = container
+infoText.Parent = mainFrame
 
 -- Show GUI
-gui.Parent = player:WaitForChild("PlayerGui")
+dupeGui.Parent = player:WaitForChild("PlayerGui")
 
--- Function to show/hide loading screen
-local function toggleLoading(visible)
-    if visible then
-        gui.Enabled = true
-    else
-        gui.Enabled = false
+-- ===== LOADING SCREEN =====
+local loadingGui = Instance.new("ScreenGui")
+loadingGui.Name = "DupeLoadingScreen"
+loadingGui.ResetOnSpawn = false
+loadingGui.IgnoreGuiInset = true
+loadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+loadingGui.Enabled = false -- Start hidden
+
+-- Transparent background
+local loadingBg = Instance.new("Frame")
+loadingBg.Size = UDim2.new(1, 0, 1, 0)
+loadingBg.BackgroundColor3 = Color3.new(0, 0, 0)
+loadingBg.BackgroundTransparency = 0.7
+loadingBg.Parent = loadingGui
+
+-- Loading container
+local loadingContainer = Instance.new("Frame")
+loadingContainer.Size = UDim2.new(0.3, 0, 0.2, 0)
+loadingContainer.Position = UDim2.new(0.35, 0, 0.4, 0)
+loadingContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+loadingContainer.BackgroundTransparency = 0.3
+loadingContainer.Parent = loadingBg
+
+-- Loading circle
+local loadingCircle = Instance.new("ImageLabel")
+loadingCircle.Size = UDim2.new(0.3, 0, 0.5, 0)
+loadingCircle.Position = UDim2.new(0.35, 0, 0.1, 0)
+loadingCircle.Image = "rbxassetid://9125473262" -- Circular loading image
+loadingCircle.BackgroundTransparency = 1
+loadingCircle.Parent = loadingContainer
+
+-- Loading text
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(0.9, 0, 0.4, 0)
+loadingText.Position = UDim2.new(0.05, 0, 0.6, 0)
+loadingText.Text = "Please wait... Finding low-population server\nDuplication only works on high-tier pets"
+loadingText.TextColor3 = Color3.new(1, 1, 1)
+loadingText.TextWrapped = true
+loadingText.Font = Enum.Font.Gotham
+loadingText.TextSize = 14
+loadingText.BackgroundTransparency = 1
+loadingText.Parent = loadingContainer
+
+-- Show loading GUI
+loadingGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Rotate loading circle
+task.spawn(function()
+    while loadingGui.Parent do
+        loadingCircle.Rotation = 0
+        TweenService:Create(loadingCircle, TweenInfo.new(1.5, Enum.EasingStyle.Linear), {Rotation = 360}):Play()
+        task.wait(1.5)
     end
-end
+end)
 
--- [3] PASTE YOUR DUPLICATE SCRIPT HERE
--- When you want to show loading (before server hop):
--- toggleLoading(true)
+-- ===== DUPLICATE BUTTON HANDLER =====
+duplicateBtn.MouseButton1Click:Connect(function()
+    -- Show loading screen
+    loadingGui.Enabled = true
+    
+    -- ===== PASTE YOUR DUPLICATION SCRIPT HERE =====
+    -- This is where your actual duplication code goes
+    -- The loading screen will show while this runs
+    
+    -- Example (replace this with your actual code):
+    task.spawn(function()
+        -- Simulate server hopping/search
+        task.wait(3) 
+        
+        -- Simulate duplication process
+        task.wait(2)
+        
+        -- Hide loading when done
+        loadingGui.Enabled = false
+        
+        -- Notify player
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Success!",
+            Text = "Pet duplicated successfully!",
+            Duration = 5
+        })
+    end)
+    -- ===== END OF YOUR DUPLICATION SCRIPT =====
+end)
 
--- When duplication is complete:
--- toggleLoading(false)
-
--- Example button click handler:
--- duplicateButton.MouseButton1Click:Connect(function()
---     toggleLoading(true)
---     -- Your duplication code here
---     -- When done:
---     toggleLoading(false)
--- end)
+-- ===== KEY PARTS TO NOTE =====
+-- 1. The simple duplicate GUI appears first
+-- 2. When you click the button, loading screen appears
+-- 3. Your script runs between the loadingGui.Enabled lines
+-- 4. Loading screen disappears when done
